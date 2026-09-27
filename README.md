@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <a href="https://github.com/vesparny/marky"><img src="https://cloud.githubusercontent.com/assets/82070/14968420/fd7960b4-10bc-11e6-80ef-a7eb63fb1677.png" alt="Marky" width="200"></a>
+  <a href="https://github.com/ernestp/marky"><img src="https://cloud.githubusercontent.com/assets/82070/14968420/fd7960b4-10bc-11e6-80ef-a7eb63fb1677.png" alt="Marky" width="200"></a>
   <br>
   Marky
   <br>
@@ -13,20 +13,17 @@
 
 
 <p align="center">
-  <a href="https://travis-ci.org/vesparny/marky"><img src="https://img.shields.io/travis/vesparny/marky/master.svg" alt="Travis"></a>
-  <a href="https://github.com/vesparny/marky/releases"><img src="https://img.shields.io/github/release/vesparny/marky.svg" alt="Release"></a>
-  <a href="https://github.com/vesparny/marky/releases"><img src="https://img.shields.io/github/downloads/vesparny/marky/total.svg" alt="Downloads"></a>
-  <a href="https://david-dm.org/vesparny/marky"><img src="https://david-dm.org/vesparny/marky/status.svg" alt="Dependency status"></a>
-  <a href="https://david-dm.org/vesparny/marky#info=devDependencies"><img src="https://david-dm.org/vesparny/marky/dev-status.svg" alt="Dev dependency status"></a>
+  <a href="https://github.com/ernestp/marky/releases"><img src="https://img.shields.io/github/release/ernestp/marky.svg" alt="Release"></a>
+  <a href="https://github.com/ernestp/marky/releases"><img src="https://img.shields.io/github/downloads/ernestp/marky/total.svg" alt="Downloads"></a>
 </p>
 
 
 
 ## Install
 
-**Marky** is still under development. You can download the latest version from the [releases](https://github.com/vesparny/marky/releases) page.
+**Marky** is still under development. You can download the latest version from the [releases](https://github.com/ernestp/marky/releases) page.
 
-Please not that binaries are not signed. If you need them to be signed you can easily do it with your own certificates.
+The macOS Apple Silicon (arm64) release is signed with a Developer ID certificate and notarized by Apple.
 
 
 <p align="center">
