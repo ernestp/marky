@@ -49,7 +49,10 @@ export default function createWindow (filePath, callback) {
     e.preventDefault()
     shell.openExternal(url)
   }
-  mainWindow.webContents.on('new-window', openExternal)
+  mainWindow.webContents.setWindowOpenHandler(({url}) => {
+    shell.openExternal(url)
+    return {action: 'deny'}
+  })
   mainWindow.webContents.on('will-navigate', openExternal)
 
   return mainWindow

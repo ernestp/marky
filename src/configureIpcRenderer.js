@@ -1,5 +1,5 @@
 import * as actions from './actions'
-import { ipcRenderer } from 'electron'
+import { ipcRenderer, webUtils } from 'electron'
 
 export default function configureIpcRenderer (store) {
   ipcRenderer.on('MARKY::file-loaded', (e, {file, fileName, filePath}) => {
@@ -32,7 +32,7 @@ export default function configureIpcRenderer (store) {
   window.document.addEventListener('drop', (e) => {
     e.preventDefault()
     ipcRenderer.send('MARKY::dropped-file', {
-      filePath: e.dataTransfer.files[0].path
+      filePath: webUtils.getPathForFile(e.dataTransfer.files[0])
     })
   })
 

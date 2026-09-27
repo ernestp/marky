@@ -7,7 +7,6 @@ const webpack = require('webpack')
 const electronCfg = require('./webpack.config.electron')
 const cfg = require('./webpack.config.prod')
 var cp = require('child_process')
-var electronPackager = require('electron-packager')
 var fs = require('fs')
 var minimist = require('minimist')
 // const os = require('os')
@@ -18,6 +17,40 @@ var series = require('run-series')
 var zip = require('cross-zip')
 
 var pkg = require('./package.json')
+
+function electronPackager (opts, cb) {
+  var packager = path.join(ROOT_PATH, 'node_modules', '@electron', 'packager', 'bin', 'electron-packager.mjs')
+  var args = [
+    opts.dir,
+    opts.name,
+    '--platform=' + opts.platform,
+    '--arch=' + opts.arch,
+    '--app-copyright=' + opts.appCopyright,
+    '--app-version=' + opts.appVersion,
+    '--asar',
+    '--asar-unpack=' + opts.asarUnpack,
+    '--build-version=' + opts.buildVersion,
+    '--electron-version=' + opts.version,
+    '--ignore=' + opts.ignore[0],
+    '--out=' + opts.out,
+    '--overwrite',
+    '--prune'
+  ]
+
+  if (opts.icon) args.push('--icon=' + opts.icon)
+  if (opts.appBundleId) args.push('--app-bundle-id=' + opts.appBundleId)
+  if (opts.appCategoryType) args.push('--app-category-type=' + opts.appCategoryType)
+  if (opts.helperBundleId) args.push('--helper-bundle-id=' + opts.helperBundleId)
+
+  cp.execFile(process.execPath, [packager].concat(args), function (err) {
+    if (err) return cb(err)
+    var prefix = opts.name + '-' + opts.platform + '-'
+    var buildPaths = fs.readdirSync(opts.out)
+      .filter((entry) => entry.indexOf(prefix) === 0)
+      .map((entry) => path.join(opts.out, entry))
+    cb(null, buildPaths)
+  })
+}
 
 var BUILD_NAME = pkg.productName + '-v' + pkg.version
 
@@ -67,16 +100,13 @@ function build () {
 }
 
 var all = {
-  // Build 64 bit binaries only.
-  arch: 'x64',
-
   // The human-readable copyright line for the app. Maps to the `LegalCopyright` metadata
   // property on Windows, and `NSHumanReadableCopyright` on OS X.
-  'app-copyright': 'Copyright © 2016-present Alessandro Arnodo',
+  appCopyright: 'Copyright © 2016-present Alessandro Arnodo',
 
   // The release version of the application. Maps to the `ProductVersion` metadata
   // property on Windows, and `CFBundleShortVersionString` on OS X.
-  'app-version': pkg.version,
+  appVersion: pkg.version,
 
   // Package the application's source code into an archive, using Electron's archive
   // format. Mitigates issues around long path names on Windows and slightly speeds up
@@ -85,12 +115,12 @@ var all = {
 
   // A glob expression, that unpacks the files with matching names to the
   // "app.asar.unpacked" directory.
-  'asar-unpack': 'Marky*',
+  asarUnpack: 'Marky*',
 
   // The build version of the application. Maps to the FileVersion metadata property on
   // Windows, and CFBundleVersion on OS X. We're using the short git hash (e.g. 'e7d837e')
   // Windows requires the build version to start with a number :/ so we stick on a prefix
-  'build-version': '0-' + cp.execSync('git rev-parse --short HEAD').toString().replace('\n', ''),
+  buildVersion: '0-' + cp.execSync('git rev-parse --short HEAD').toString().replace('\n', ''),
 
   // The application source directory.
   dir: ROOT_PATH,
@@ -116,21 +146,22 @@ var all = {
   prune: true,
 
   // The Electron version with which the app is built (without the leading 'v')
-  version: pkg.dependencies['electron-prebuilt']
+  version: pkg.devDependencies.electron
 }
 
 var darwin = {
   platform: 'darwin',
+  arch: 'arm64',
 
   // The bundle identifier to use in the application's plist (OS X only).
-  'app-bundle-id': 'net.arnodo.marky',
+  appBundleId: 'net.arnodo.marky',
 
   // The application category type, as shown in the Finder via "View" -> "Arrange by
   // Application Category" when viewing the Applications directory (OS X only).
-  'app-category-type': 'public.app-category.utilities',
+  appCategoryType: 'public.app-category.utilities',
 
   // The bundle identifier to use in the application helper's plist (OS X only).
-  'helper-bundle-id': 'io.webtorrent.marky-helper',
+  helperBundleId: 'io.webtorrent.marky-helper',
 
   // Application icon.
   icon: path.join(__dirname, 'assets', 'icon') + '.icns'
@@ -229,8 +260,6 @@ function buildDarwin (cb) {
     }
 
     function signApp (cb) {
-      var sign = require('electron-osx-sign')
-
       /*
        * Sign the app with Apple Developer ID certificates. We sign the app for 2 reasons:
        *   - So the auto-updater (Squirrrel.Mac) can check that app updates are signed by
@@ -251,7 +280,8 @@ function buildDarwin (cb) {
       }
 
       console.log('OS X: Signing app...')
-      sign(signOpts, function (err) {
+      var signer = path.join(ROOT_PATH, 'node_modules', '@electron', 'osx-sign', 'bin', 'electron-osx-sign.mjs')
+      cp.execFile(process.execPath, [signer, signOpts.app], function (err) {
         if (err) return cb(err)
         console.log('OS X: Signed app.')
         cb(null)

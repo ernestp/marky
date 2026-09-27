@@ -8,7 +8,11 @@ const _windows = {}
 function _createWindow (options) {
   const opts = {
     ... {
-      show: false
+      show: false,
+      webPreferences: {
+        contextIsolation: false,
+        nodeIntegration: true
+      }
     },
     ...options
   }
